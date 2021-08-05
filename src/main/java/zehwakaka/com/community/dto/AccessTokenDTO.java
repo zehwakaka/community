@@ -11,7 +11,13 @@ public class AccessTokenDTO {
 
     @Override
     public String toString() {
-        return ("client_id:"+client_id+"  client_ceret:"+ client_secret +"  code:"+code+"  redirect_uri:"+redirect_uri+"  state:"+state);
+        return "AccessTokenDTO{" +
+                "client_id='" + client_id + '\'' +
+                ", client_secret='" + client_secret + '\'' +
+                ", code='" + code + '\'' +
+                ", redirect_uri='" + redirect_uri + '\'' +
+                ", state='" + state + '\'' +
+                '}';
     }
 
     public String getClient_id() {
