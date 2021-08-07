@@ -11,7 +11,9 @@ import zehwakaka.com.community.mapper.UserMapper;
 import zehwakaka.com.community.model.User;
 import zehwakaka.com.community.provider.GithubProvider;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @Controller
@@ -35,7 +37,8 @@ public class AuthorizeController {
 
 
     @GetMapping("/callback")
-    public String callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request)
+    public String callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state,
+                           HttpServletRequest request, HttpServletResponse response)
     {
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setClient_id(clientId);
@@ -45,27 +48,30 @@ public class AuthorizeController {
         accessTokenDTO.setState(state);
         String accessToken = githubProvider.getAccessToken(accessTokenDTO);
         GithubUser githubUser =githubProvider.getUser(accessToken);
+
         System.out.println(accessTokenDTO.toString());
         System.out.println(accessToken);
         System.out.println(githubUser.toString());
 //        System.out.println(user.getName());
         if(githubUser != null){
             User user = new User();
-            user.setToken(UUID.randomUUID().toString());
+            String token = UUID.randomUUID().toString();
+            user.setToken(token);
             user.setName(githubUser.getName());
             user.setAccountId(String.valueOf(githubUser.getId()));
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
             userMapper.insert(user);
-            //登录成功，写cookie和session
-            request.getSession().setAttribute("user",githubUser);
-            return "redirect:/";
-            
+            System.out.println(token);
+            response.addCookie(new Cookie("token",token));
+
+
+
         }else{
             //登录失败，重新登录
-            return "redirect:/";
         }
+        return "redirect:/";
 
-       
+
     }
 }
